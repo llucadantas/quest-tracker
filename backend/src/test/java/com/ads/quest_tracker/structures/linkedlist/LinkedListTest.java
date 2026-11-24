@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Testes Unitários - LinkedList")
 class LinkedListTest {
-
     private LinkedList<String> list;
 
     @BeforeEach
@@ -24,7 +23,6 @@ class LinkedListTest {
     @Nested
     @DisplayName("Estado Inicial")
     class InitialStateTests {
-
         @Test
         @DisplayName("Lista recém-criada deve estar vazia e com tamanho zero")
         void shouldBeEmptyInitially() {
@@ -46,7 +44,6 @@ class LinkedListTest {
     @Nested
     @DisplayName("Operações de Inserção")
     class InsertionTests {
-
         @Test
         @DisplayName("add(T) deve adicionar elementos no final da lista")
         void shouldAddElementsToEnd() {
@@ -80,10 +77,10 @@ class LinkedListTest {
         @Test
         @DisplayName("add(index, T) deve inserir no início, meio e fim corretamente")
         void shouldAddAtIndexCorrectly() {
-            list.add(0, "B"); // [B] (início na lista vazia)
-            list.add(0, "A"); // [A, B] (início com elementos)
-            list.add(2, "D"); // [A, B, D] (fim)
-            list.add(2, "C"); // [A, B, C, D] (meio)
+            list.add(0, "B");
+            list.add(0, "A");
+            list.add(2, "D");
+            list.add(2, "C");
 
             assertEquals(4, list.size());
             assertEquals("A", list.get(0));
@@ -97,10 +94,10 @@ class LinkedListTest {
         @DisplayName("add(index, T) deve lançar IndexOutOfBoundsException para índices inválidos")
         void shouldThrowExceptionForInvalidAddIndices() {
             assertThrows(IndexOutOfBoundsException.class, () -> list.add(-1, "X"));
-            assertThrows(IndexOutOfBoundsException.class, () -> list.add(1, "X")); // size é 0, index 1 é inválido
+            assertThrows(IndexOutOfBoundsException.class, () -> list.add(1, "X"));
 
             list.add("A");
-            assertThrows(IndexOutOfBoundsException.class, () -> list.add(2, "X")); // size é 1, index 2 é inválido
+            assertThrows(IndexOutOfBoundsException.class, () -> list.add(2, "X"));
         }
 
         @Test
@@ -120,7 +117,6 @@ class LinkedListTest {
     @Nested
     @DisplayName("Operações de Remoção")
     class DeletionTests {
-
         @Test
         @DisplayName("removeFirst() deve remover e retornar o primeiro elemento")
         void shouldRemoveFirstElement() {
@@ -165,16 +161,13 @@ class LinkedListTest {
             list.add("C");
             list.add("D");
 
-            // Remove do meio
             assertEquals("B", list.remove(1));
             assertEquals(3, list.size());
             assertEquals("[A, C, D]", list.toString());
 
-            // Remove do início
             assertEquals("A", list.remove(0));
             assertEquals(2, list.size());
 
-            // Remove do fim
             assertEquals("D", list.remove(1));
             assertEquals(1, list.size());
             assertEquals("C", list.getFirst());
@@ -201,21 +194,17 @@ class LinkedListTest {
             list.add("C");
             list.add("B");
 
-            // Remove primeira ocorrência de B
             assertTrue(list.remove("B"));
             assertEquals(3, list.size());
             assertEquals("[A, C, B]", list.toString());
 
-            // Remove primeiro elemento (A)
             assertTrue(list.remove("A"));
             assertEquals("C", list.getFirst());
 
-            // Remove último elemento (B)
             assertTrue(list.remove("B"));
             assertEquals("C", list.getLast());
             assertEquals(1, list.size());
 
-            // Tenta remover elemento já inexistente
             assertFalse(list.remove("Z"));
         }
 
@@ -235,7 +224,6 @@ class LinkedListTest {
     @Nested
     @DisplayName("Operações de Consulta e Busca")
     class QueryTests {
-
         @BeforeEach
         void populate() {
             list.add("Primeiro");
@@ -272,7 +260,6 @@ class LinkedListTest {
     @Nested
     @DisplayName("Operações de Controle e Limpeza")
     class ControlTests {
-
         @Test
         @DisplayName("clear() deve esvaziar a lista e resetar ponteiros")
         void shouldClearList() {
@@ -309,7 +296,6 @@ class LinkedListTest {
     @Nested
     @DisplayName("Exemplos de Utilização (Integer e Objeto Personalizado)")
     class UsageExamplesTests {
-
         @Test
         @DisplayName("Exemplo de utilização com Integer")
         void shouldWorkWithInteger() {
@@ -317,7 +303,7 @@ class LinkedListTest {
             intList.add(10);
             intList.add(20);
             intList.addFirst(5);
-            intList.add(2, 15); // [5, 10, 15, 20]
+            intList.add(2, 15);
 
             assertEquals(4, intList.size());
             assertEquals(5, intList.getFirst());
@@ -327,9 +313,9 @@ class LinkedListTest {
             assertTrue(intList.contains(10));
             assertEquals(1, intList.indexOf(10));
 
-            intList.removeFirst(); // remove 5
-            intList.removeLast();  // remove 20
-            intList.remove(Integer.valueOf(15)); // remove 15
+            intList.removeFirst();
+            intList.removeLast();
+            intList.remove(Integer.valueOf(15));
 
             assertEquals(1, intList.size());
             assertEquals(10, intList.getFirst());
@@ -381,13 +367,12 @@ class LinkedListTest {
 
             customList.add(r1);
             customList.add(r2);
-            customList.addFirst(r3); // [r3, r1, r2]
+            customList.addFirst(r3);
 
             assertEquals(3, customList.size());
             assertEquals(r3, customList.getFirst());
             assertEquals(r2, customList.getLast());
 
-            // Busca e remoção por valor baseado em equals
             assertTrue(customList.contains(new RegistroPersonalizado(2, "Implementar Estrutura")));
             assertEquals(2, customList.indexOf(new RegistroPersonalizado(2, "Implementar Estrutura")));
 

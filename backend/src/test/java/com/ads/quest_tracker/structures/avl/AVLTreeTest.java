@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Testes Unitários - AVLTree")
 class AVLTreeTest {
-
     private AVLTree<Integer> tree;
 
     @BeforeEach
@@ -19,12 +18,6 @@ class AVLTreeTest {
         tree = new AVLTree<>();
     }
 
-    /**
-     * Valida recursivamente as invariantes estritas da Árvore AVL:
-     * 1. Propriedade de busca binária.
-     * 2. Consistência da altura registrada no nó com a altura real dos filhos.
-     * 3. Fator de balanceamento estritamente entre -1 e 1.
-     */
     private <T> void assertAVLInvariants(AVLTree<T> avlTree) {
         assertNodeInvariants(avlTree.getRoot(), avlTree);
     }
@@ -52,7 +45,6 @@ class AVLTreeTest {
     @Nested
     @DisplayName("Inicialização e Estado Inicial")
     class InitializationTests {
-
         @Test
         @DisplayName("Árvore recém-criada deve estar vazia com tamanho e altura zero")
         void shouldInitializeEmptyTree() {
@@ -71,7 +63,6 @@ class AVLTreeTest {
             customTree.insert("alpha");
             customTree.insert("beta");
 
-            // Com ordem reversa, "beta" é menor que "alpha" e vai para a esquerda
             assertEquals("alpha", customTree.getRoot().getValue());
             assertEquals("beta", customTree.getRoot().getLeft().getValue());
             assertAVLInvariants(customTree);
@@ -95,7 +86,6 @@ class AVLTreeTest {
     @Nested
     @DisplayName("Operações de Inserção e Política de Duplicados")
     class InsertionTests {
-
         @Test
         @DisplayName("Deve inserir o primeiro elemento como raiz com altura 1")
         void shouldInsertRootElement() {
@@ -132,7 +122,6 @@ class AVLTreeTest {
             assertTrue(tree.insert(30));
             assertEquals(2, tree.size());
 
-            // Tentativa de duplicados
             assertFalse(tree.insert(50));
             assertFalse(tree.insert(30));
 
@@ -150,7 +139,6 @@ class AVLTreeTest {
     @Nested
     @DisplayName("Operações de Busca e Verificação de Existência")
     class SearchTests {
-
         @BeforeEach
         void populateTree() {
             tree.insert(50);
@@ -187,7 +175,6 @@ class AVLTreeTest {
     @Nested
     @DisplayName("Operações de Remoção")
     class DeletionTests {
-
         @Test
         @DisplayName("Deve retornar false ao tentar remover de árvore vazia")
         void shouldReturnFalseWhenDeletingFromEmptyTree() {
@@ -228,7 +215,6 @@ class AVLTreeTest {
             tree.insert(75);
             tree.insert(10);
 
-            // 25 tem apenas 1 filho: 10 à esquerda
             assertTrue(tree.delete(25));
             assertEquals(3, tree.size());
             assertFalse(tree.contains(25));
@@ -244,7 +230,6 @@ class AVLTreeTest {
             tree.insert(75);
             tree.insert(85);
 
-            // 75 tem apenas 1 filho: 85 à direita
             assertTrue(tree.delete(75));
             assertEquals(3, tree.size());
             assertFalse(tree.contains(75));
@@ -302,17 +287,13 @@ class AVLTreeTest {
     @Nested
     @DisplayName("ETAPA 4 - Rotações e Mecanismos de Balanceamento")
     class RotationAndBalancingTests {
-
         @Test
         @DisplayName("Caso LL: Rotação Simples à Direita na Inserção")
         void shouldExecuteRightRotationLLOnInsert() {
-            // Inserção em ordem decrescente provocando desbalanceamento LL
             tree.insert(30);
             tree.insert(20);
             tree.insert(10);
 
-            // A árvore 30 -> 20 -> 10 deve rotacionar à direita:
-            // Nova raiz: 20, Filho esquerdo: 10, Filho direito: 30
             assertEquals(20, tree.getRoot().getValue());
             assertEquals(10, tree.getRoot().getLeft().getValue());
             assertEquals(30, tree.getRoot().getRight().getValue());
@@ -323,13 +304,10 @@ class AVLTreeTest {
         @Test
         @DisplayName("Caso RR: Rotação Simples à Esquerda na Inserção")
         void shouldExecuteLeftRotationRROnInsert() {
-            // Inserção em ordem crescente provocando desbalanceamento RR
             tree.insert(10);
             tree.insert(20);
             tree.insert(30);
 
-            // A árvore 10 -> 20 -> 30 deve rotacionar à esquerda:
-            // Nova raiz: 20, Filho esquerdo: 10, Filho direito: 30
             assertEquals(20, tree.getRoot().getValue());
             assertEquals(10, tree.getRoot().getLeft().getValue());
             assertEquals(30, tree.getRoot().getRight().getValue());
@@ -340,13 +318,10 @@ class AVLTreeTest {
         @Test
         @DisplayName("Caso LR: Rotação Dupla Esquerda-Direita na Inserção")
         void shouldExecuteDoubleRotationLROnInsert() {
-            // Inserção em formato zigue-zague à esquerda: 30 -> 10 -> 20
             tree.insert(30);
             tree.insert(10);
             tree.insert(20);
 
-            // Rotação dupla LR:
-            // Nova raiz: 20, Filho esquerdo: 10, Filho direito: 30
             assertEquals(20, tree.getRoot().getValue());
             assertEquals(10, tree.getRoot().getLeft().getValue());
             assertEquals(30, tree.getRoot().getRight().getValue());
@@ -357,13 +332,10 @@ class AVLTreeTest {
         @Test
         @DisplayName("Caso RL: Rotação Dupla Direita-Esquerda na Inserção")
         void shouldExecuteDoubleRotationRLOnInsert() {
-            // Inserção em formato zigue-zague à direita: 10 -> 30 -> 20
             tree.insert(10);
             tree.insert(30);
             tree.insert(20);
 
-            // Rotação dupla RL:
-            // Nova raiz: 20, Filho esquerdo: 10, Filho direito: 30
             assertEquals(20, tree.getRoot().getValue());
             assertEquals(10, tree.getRoot().getLeft().getValue());
             assertEquals(30, tree.getRoot().getRight().getValue());
@@ -379,7 +351,6 @@ class AVLTreeTest {
             tree.insert(70);
             tree.insert(20);
 
-            // Removendo 70, o nó 50 fica desbalanceado à esquerda com filho esquerdo 30 (FB = 1) -> Caso LL
             assertTrue(tree.delete(70));
 
             assertEquals(30, tree.getRoot().getValue());
@@ -397,7 +368,6 @@ class AVLTreeTest {
             tree.insert(70);
             tree.insert(80);
 
-            // Removendo 30, o nó 50 fica desbalanceado à direita com filho direito 70 (FB = -1) -> Caso RR
             assertTrue(tree.delete(30));
 
             assertEquals(70, tree.getRoot().getValue());
@@ -415,7 +385,6 @@ class AVLTreeTest {
             tree.insert(70);
             tree.insert(40);
 
-            // Removendo 70, o nó 50 fica com FB = 2 e filho esquerdo 30 tem FB = -1 -> Caso LR
             assertTrue(tree.delete(70));
 
             assertEquals(40, tree.getRoot().getValue());
@@ -433,7 +402,6 @@ class AVLTreeTest {
             tree.insert(70);
             tree.insert(60);
 
-            // Removendo 30, o nó 50 fica com FB = -2 e filho direito 70 tem FB = 1 -> Caso RL
             assertTrue(tree.delete(30));
 
             assertEquals(60, tree.getRoot().getValue());
@@ -446,8 +414,6 @@ class AVLTreeTest {
         @Test
         @DisplayName("Deve manter a árvore balanceada após inserções massivas sequenciais")
         void shouldMaintainBalanceOnSequentialMassInsertions() {
-            // Inserção sequencial de 1 a 63
-            // Em árvore não-balanceada a altura seria 63. Na AVL, para 63 nós a altura máxima teórica é 6.
             for (int i = 1; i <= 63; i++) {
                 assertTrue(tree.insert(i));
             }
@@ -456,7 +422,6 @@ class AVLTreeTest {
             assertEquals(6, tree.height());
             assertAVLInvariants(tree);
 
-            // Remoção de nós em lote mantendo invariantes em cada passo
             for (int i = 1; i <= 30; i++) {
                 assertTrue(tree.delete(i));
                 assertAVLInvariants(tree);
@@ -485,7 +450,6 @@ class AVLTreeTest {
     @Nested
     @DisplayName("Operações de Consulta de Altura e Limpeza")
     class HeightAndClearTests {
-
         @Test
         @DisplayName("Altura deve ser atualizada corretamente após inserções e remoções")
         void shouldUpdateHeightCorrectly() {
@@ -529,7 +493,6 @@ class AVLTreeTest {
     @Nested
     @DisplayName("ETAPA 5 - Percursos e Operações Auxiliares")
     class TraversalsAndAuxiliaryTests {
-
         @Test
         @DisplayName("Percursos em árvore vazia devem retornar listas vazias imutáveis")
         void shouldReturnEmptyListsOnEmptyTree() {
@@ -546,12 +509,6 @@ class AVLTreeTest {
         @Test
         @DisplayName("Deve executar percursos tradicionais com ordem matemática exata")
         void shouldExecuteAllTraversalsAccurately() {
-            // Montagem de árvore balanceada:
-            //          50
-            //        /    \
-            //       20     70
-            //      /  \   /  \
-            //     10  30 60  80
             tree.insert(50);
             tree.insert(20);
             tree.insert(70);
@@ -560,19 +517,14 @@ class AVLTreeTest {
             tree.insert(60);
             tree.insert(80);
 
-            // In-Order: Esquerda, Raiz, Direita (sempre ordenado crescente)
             assertEquals(java.util.List.of(10, 20, 30, 50, 60, 70, 80), tree.inOrder());
 
-            // Pre-Order: Raiz, Esquerda, Direita
             assertEquals(java.util.List.of(50, 20, 10, 30, 70, 60, 80), tree.preOrder());
 
-            // Post-Order: Esquerda, Direita, Raiz
             assertEquals(java.util.List.of(10, 30, 20, 60, 80, 70, 50), tree.postOrder());
 
-            // Level-Order (BFS): Nível por nível
             assertEquals(java.util.List.of(50, 20, 70, 10, 30, 60, 80), tree.levelOrder());
 
-            // getSortedElements() deve equivaler a inOrder()
             assertEquals(tree.inOrder(), tree.getSortedElements());
         }
 
