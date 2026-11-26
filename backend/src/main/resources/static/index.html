@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>QuestTracker — Tarefas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: #0b100d;
+            color: #e8eee8;
+            font-family: system-ui, sans-serif
+        }
+
+        input,
+        select,
+        textarea {
+            background: #111914;
+            border: 1px solid #293a30;
+            border-radius: .6rem;
+            padding: .65rem;
+            color: #e8eee8
+        }
+
+        button {
+            cursor: pointer
+        }
+    </style>
+</head>
+
+<body>
+    <header class="border-b border-[#1d2922] sticky top-0 bg-[#0b100d]/95">
+        <div class="max-w-6xl mx-auto p-4 flex justify-between items-center"><a class="font-bold text-xl text-lime-300"
+                href="/index.html">QuestTracker</a>
+            <nav class="flex gap-4 text-sm"><a class="text-lime-300" href="/index.html">Visão
+                    geral</a><a class="text-slate-300 hover:text-lime-300"
+                    href="questtracker_estruturas_de_dados.html">Estruturas</a></nav>
+        </div>
+    </header>
+    <main class="max-w-6xl mx-auto p-5 md:p-8 space-y-6">
+        <div class="flex flex-wrap justify-between gap-4 items-end">
+            <div>
+                <p class="text-lime-300 text-xs uppercase tracking-widest">Painel conectado à API</p>
+                <h1 class="text-3xl font-bold mt-2">Visão geral</h1>
+                <p class="text-slate-400 mt-2">Acompanhe tarefas e subtarefas em um só lugar.</p>
+            </div><button id="newTask" class="rounded-lg bg-lime-300 text-black px-4 py-2 font-semibold">＋ Nova
+                tarefa</button>
+        </div>
+        <div id="notice" class="hidden rounded-lg border border-amber-700 bg-amber-950/50 p-3 text-amber-200"></div>
+        <section class="grid sm:grid-cols-3 gap-3">
+            <article class="rounded-xl border border-[#1d2922] bg-[#111914] p-4">
+                <p class="text-slate-400 text-sm">Total</p><strong id="total" class="text-3xl">0</strong>
+            </article>
+            <article class="rounded-xl border border-[#1d2922] bg-[#111914] p-4">
+                <p class="text-slate-400 text-sm">Pendentes</p><strong id="pending" class="text-3xl">0</strong>
+            </article>
+            <article class="rounded-xl border border-[#1d2922] bg-[#111914] p-4">
+                <p class="text-slate-400 text-sm">Concluídas</p><strong id="completed" class="text-3xl">0</strong>
+            </article>
+        </section>
+        <section class="rounded-xl border border-[#1d2922] bg-[#111914] p-4 md:p-6">
+            <div class="flex flex-wrap justify-between gap-3 items-center mb-4">
+                <h2 class="text-xl font-semibold">Tarefas</h2><input id="search" placeholder="Buscar por nome ou ID"
+                    class="w-full sm:w-64">
+            </div>
+            <div id="tasks" class="space-y-3"></div>
+        </section>
+    </main>
+    <dialog id="taskDialog" class="rounded-xl bg-[#111914] text-white border border-[#293a30] p-6 w-[min(92vw,30rem)]">
+        <form id="taskForm" class="space-y-4">
+            <h2 class="text-xl font-bold">Nova tarefa</h2><label class="block text-sm">Título<input name="title"
+                    required maxlength="140" class="block w-full mt-1"></label><label
+                class="block text-sm">Descrição<textarea name="description" class="block w-full mt-1"
+                    rows="3"></textarea></label><label class="block text-sm">Prioridade<select name="priority"
+                    class="block w-full mt-1">
+                    <option>LOW</option>
+                    <option selected>MEDIUM</option>
+                    <option>HIGH</option>
+                    <option>URGENT</option>
+                </select></label>
+            <div class="flex justify-end gap-2"><button type="button"
+                    class="cancel rounded-lg border border-slate-600 px-3 py-2">Cancelar</button><button
+                    class="rounded-lg bg-lime-300 text-black px-4 py-2 font-semibold">Criar tarefa</button></div>
+        </form>
+    </dialog>
+    <dialog id="subDialog" class="rounded-xl bg-[#111914] text-white border border-[#293a30] p-6 w-[min(92vw,30rem)]">
+        <form id="subForm" class="space-y-4">
+            <h2 class="text-xl font-bold">Nova subtarefa</h2><input name="taskId" type="hidden"><label
+                class="block text-sm">Título<input name="title" required maxlength="140"
+                    class="block w-full mt-1"></label><label class="block text-sm">Descrição<textarea name="description"
+                    class="block w-full mt-1" rows="2"></textarea></label>
+            <div class="flex justify-end gap-2"><button type="button"
+                    class="cancel rounded-lg border border-slate-600 px-3 py-2">Cancelar</button><button
+                    class="rounded-lg bg-lime-300 text-black px-4 py-2 font-semibold">Adicionar</button></div>
+        </form>
+    </dialog>
+    <script>
+        const API = '/api/tasks', $ = s => document.querySelector(s); let tasks = [];
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+        function notice(msg = '') {const n = $('#notice'); n.textContent = msg; n.classList.toggle('hidden', !msg)}
+        async function apiRequest(url, options = {}) {const response = await fetch(url, {headers: {'Content-Type': 'application/json', ...(options.headers || {})}, ...options}); if (!response.ok) {let message = `Erro ${response.status}`; try {const data = await response.json(); message = data.message || data.error || message} catch { } throw new Error(message)} return response.status === 204 ? null : response.json()}
+        function render() {const q = $('#search').value.trim().toLowerCase(); const filtered = tasks.filter(t => String(t.id).includes(q) || t.title.toLowerCase().includes(q)); $('#total').textContent = tasks.length; $('#pending').textContent = tasks.filter(t => t.status === 'PENDING').length; $('#completed').textContent = tasks.filter(t => t.status === 'COMPLETED').length; $('#tasks').innerHTML = filtered.length ? filtered.map(t => `<article class="rounded-lg border border-[#293a30] p-4"><div class="flex flex-wrap justify-between gap-3"><div><span class="font-mono text-xs text-lime-300">#${t.id}</span><h3 class="font-semibold text-lg">${esc(t.title)}</h3><p class="text-sm text-slate-400">${esc(t.description || 'Sem descrição')} · ${esc(t.priority)} · ${esc(t.status)}</p></div><button data-add="${t.id}" class="h-fit rounded-lg border border-lime-700 px-3 py-2 text-lime-300">＋ Subtarefa</button></div><ul class="mt-3 space-y-2">${(t.subtasks || []).map(s => `<li class="flex items-start gap-2 text-sm ${s.completed ? 'text-slate-500 line-through' : 'text-slate-300'}"><span>${s.completed ? '✓' : '○'}</span><span><b>${esc(s.title)}</b>${s.description ? ` — ${esc(s.description)}` : ''}</span>${!s.completed ? `<button data-done="${t.id}:${s.id}" class="ml-auto text-xs text-lime-300">Concluir</button>` : ''}</li>`).join('') || '<li class="text-sm text-slate-500">Nenhuma subtarefa.</li>'}</ul></article>`).join('') : '<p class="text-slate-400">Nenhuma tarefa encontrada.</p>';}
+        async function refresh() {try {const list = await apiRequest(API); tasks = await Promise.all(list.map(async task => ({...task, subtasks: await apiRequest(`${API}/${task.id}/subtasks`)}))); render(); notice('')} catch (error) {tasks = []; render(); notice(`Não foi possível carregar dados da API: ${error.message}. Verifique se o backend está em execução.`)} }
+        function nextId(list) {return Math.max(0, ...list.map(x => Number(x.id) || 0)) + 1}
+        $('#newTask').onclick = () => $('#taskDialog').showModal(); $('.cancel').onclick = e => e.target.closest('dialog').close(); document.querySelectorAll('dialog .cancel').forEach(b => b.onclick = e => e.currentTarget.closest('dialog').close());
+        $('#taskForm').onsubmit = async e => {e.preventDefault(); const form = e.currentTarget, f = new FormData(form); try {const current = await apiRequest(API); const payload = {id: nextId(current), title: f.get('title').trim(), description: f.get('description').trim(), priority: f.get('priority'), status: 'PENDING'}; await apiRequest(API, {method: 'POST', body: JSON.stringify(payload)}); form.reset(); $('#taskDialog').close(); await refresh()} catch (error) {notice(`Não foi possível criar a tarefa: ${error.message}`)} };
+        $('#subForm').onsubmit = async e => {e.preventDefault(); const form = e.currentTarget, f = new FormData(form), task = tasks.find(t => String(t.id) === f.get('taskId')); if (!task) return; try {await apiRequest(`${API}/${task.id}/subtasks`, {method: 'POST', body: JSON.stringify({id: nextId(task.subtasks || []), title: f.get('title').trim(), description: f.get('description').trim()})}); $('#subDialog').close(); form.reset(); await refresh()} catch (error) {notice(`Não foi possível adicionar a subtarefa: ${error.message}`)} };
+        $('#tasks').onclick = async e => {const add = e.target.closest('[data-add]'), done = e.target.closest('[data-done]'); if (add) {$('#subForm').elements.taskId.value = add.dataset.add; $('#subDialog').showModal()} if (done) {const [tid, sid] = done.dataset.done.split(':'); try {await apiRequest(`${API}/${tid}/subtasks/${sid}/complete`, {method: 'PATCH'}); await refresh()} catch (error) {notice(`Não foi possível concluir a subtarefa: ${error.message}`)} } }; $('#search').oninput = render; refresh();
+    </script>
+</body>
+
+</html>

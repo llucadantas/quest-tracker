@@ -1,5 +1,8 @@
 package com.ads.quest_tracker.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ads.quest_tracker.structures.linkedlist.LinkedList;
 
 import java.util.Objects;
@@ -20,7 +23,14 @@ public class Task {
         this(id, title, description, priority, TaskStatus.PENDING);
     }
 
-    public Task(Long id, String title, String description, Priority priority, TaskStatus status) {
+    @JsonCreator
+    public Task(
+            @JsonProperty("id") Long id,
+            @JsonProperty("title") String title,
+            @JsonProperty("description") String description,
+            @JsonProperty("priority") Priority priority,
+            @JsonProperty("status") TaskStatus status
+    ) {
         this.id = validateId(id);
         this.title = validateTitle(title);
         this.description = description != null ? description : "";
@@ -81,6 +91,7 @@ public class Task {
         this.status = Objects.requireNonNull(status, "O status da tarefa não pode ser nulo.");
     }
 
+    @JsonIgnore
     public LinkedList<SubTask> getSubtasks() {
         return subtasks;
     }

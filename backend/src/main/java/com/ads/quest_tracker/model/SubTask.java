@@ -1,5 +1,7 @@
 package com.ads.quest_tracker.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 public class SubTask {
@@ -12,7 +14,12 @@ public class SubTask {
         this(id, title, "");
     }
 
-    public SubTask(Long id, String title, String description) {
+    @JsonCreator
+    public SubTask(
+            @JsonProperty("id") Long id,
+            @JsonProperty("title") String title,
+            @JsonProperty("description") String description
+    ) {
         this.id = validateId(id);
         this.title = validateTitle(title);
         this.description = description != null ? description : "";
